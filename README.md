@@ -14,14 +14,10 @@
 First, ensure you have Python 3.8+ installed. Then, install the required dependencies:
 
 ```bash
-pip install fastapi uvicorn "ultralytics[yolo]" Pillow
+pip install fastapi uvicorn "ultralytics[yolo]" Pillow pydantic
 ```
 
-Next, download the YOLOv8 nano model (`yolov8n.pt`) and place it in the project root directory, or ensure the `MODEL_PATH` in `app/main.py` points to its location. You can download it directly from Ultralytics:
-
-```bash
-wget https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8n.pt
-```
+Next, ensure the YOLOv8 nano model (`yolov8n.pt`) is available in the project root directory. The backend server will attempt to download it automatically if not found.
 
 ### Installation (Frontend)
 Navigate to the `frontend/` directory and install the Node.js dependencies:
@@ -54,7 +50,14 @@ The client application will typically open in your browser at `http://localhost:
 The frontend client automatically connects to the WebSocket endpoint at `ws://localhost:8000/ws`.
 
 **Sending Data:**
-The client sends base64-encoded image data (e.g., JPEG frames) as a plain text string over the WebSocket connection.
+The client sends JSON messages over the WebSocket connection. Each message must contain a `image` key with a base64-encoded image string, and can optionally include a `confidence_threshold` to filter detection results.
+
+```json
+{
+  "image": "base64_encoded_image_string_here...",
+  "confidence_threshold": 0.5
+}
+```
 
 **Receiving Data:**
 The server will respond with JSON messages containing detection results for each processed frame. Each message will have a `"detections"` key containing a list of objects, structured as follows:
