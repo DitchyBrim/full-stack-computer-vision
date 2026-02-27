@@ -1,14 +1,16 @@
 # full-stack-computer-vision
 
 ## Features
-✦ Provides a real-time object detection service via WebSocket.
-✦ Integrates the YOLOv8 model for efficient AI-powered inference.
+✦ Provides a full-stack solution for real-time object detection, including a web-based UI.
+✦ Integrates the YOLOv8 model for efficient AI-powered inference on the backend.
 ✦ Offers an HTTP `/health` endpoint for quick server status checks.
-✦ Processes base64-encoded image frames received over WebSocket.
+✦ Processes base64-encoded image frames received over WebSocket from various sources.
 ✦ Returns structured JSON detection results including normalized bounding box coordinates, labels, and confidence.
+✦ Supports multiple video input sources from the frontend: live camera feed and desktop screen sharing.
+✦ Visualizes object detection results (bounding boxes, labels, confidence) directly on the video stream in real-time.
 
 ## Usage
-### Installation
+### Installation (Backend)
 First, ensure you have Python 3.8+ installed. Then, install the required dependencies:
 
 ```bash
@@ -21,7 +23,16 @@ Next, download the YOLOv8 nano model (`yolov8n.pt`) and place it in the project 
 wget https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8n.pt
 ```
 
-### Running the Server
+### Installation (Frontend)
+Navigate to the `frontend/` directory and install the Node.js dependencies:
+
+```bash
+cd frontend
+npm install
+# or yarn install
+```
+
+### Running the Server (Backend)
 Start the FastAPI server:
 
 ```bash
@@ -29,11 +40,21 @@ python app/main.py
 ```
 The server will start on `http://localhost:8000`.
 
-### WebSocket API
-Connect to the WebSocket endpoint at `ws://localhost:8000/ws`.
+### Running the Client (Frontend)
+In a separate terminal, navigate to the `frontend/` directory and start the development server:
+
+```bash
+cd frontend
+npm run dev
+# or yarn dev
+```
+The client application will typically open in your browser at `http://localhost:5173`. Ensure both backend and frontend are running for full functionality.
+
+### WebSocket API (Backend)
+The frontend client automatically connects to the WebSocket endpoint at `ws://localhost:8000/ws`.
 
 **Sending Data:**
-Send base64-encoded image data (e.g., JPEG or PNG frames) as a plain text string over the WebSocket connection.
+The client sends base64-encoded image data (e.g., JPEG frames) as a plain text string over the WebSocket connection.
 
 **Receiving Data:**
 The server will respond with JSON messages containing detection results for each processed frame. Each message will have a `"detections"` key containing a list of objects, structured as follows:
@@ -54,79 +75,6 @@ The server will respond with JSON messages containing detection results for each
 }
 ```
 Coordinates (`x1`, `y1`, `x2`, `y2`) are normalized (0.0 to 1.0) relative to the image dimensions.
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
 
 ## Recent Changes
 ### 2026-02-27 – Initial release of real-time YOLO detection server
@@ -134,3 +82,9 @@ export default defineConfig([
 - Provides a WebSocket API (`/ws`) for streaming image frames and receiving detection results.
 - Includes a `/health` endpoint for server status checks.
 - Integrates the YOLOv8 model for AI inference capabilities.
+
+### 2026-02-27 – Integration of a React + TypeScript Frontend
+- Introduces a web-based client application built with React, TypeScript, and Vite.
+- Enables real-time object detection from live camera feeds or screen sharing within the browser.
+- Provides an intuitive user interface for visualizing detection bounding boxes and labels.
+- Includes basic support for image/video file uploads for inference (feature expansion).
