@@ -6,7 +6,7 @@
 ✦ Offers an HTTP `/health` endpoint for quick server status checks.
 ✦ Processes base64-encoded image frames received over WebSocket from various sources.
 ✦ Returns structured JSON detection results including normalized bounding box coordinates, labels, and confidence.
-✦ Supports multiple video input sources from the frontend: live camera feed and desktop screen sharing.
+✦ Supports multiple video input sources from the frontend: live camera feed, desktop screen sharing, and local file uploads (images/videos).
 ✦ Visualizes object detection results (bounding boxes, labels, confidence) directly on the video stream in real-time.
 
 ## Usage
@@ -75,16 +75,3 @@ The server will respond with JSON messages containing detection results for each
 }
 ```
 Coordinates (`x1`, `y1`, `x2`, `y2`) are normalized (0.0 to 1.0) relative to the image dimensions.
-
-## Recent Changes
-### 2026-02-27 – Initial release of real-time YOLO detection server
-- Introduces a FastAPI-based server for real-time object detection.
-- Provides a WebSocket API (`/ws`) for streaming image frames and receiving detection results.
-- Includes a `/health` endpoint for server status checks.
-- Integrates the YOLOv8 model for AI inference capabilities.
-
-### 2026-02-27 – Integration of a React + TypeScript Frontend
-- Introduces a web-based client application built with React, TypeScript, and Vite.
-- Enables real-time object detection from live camera feeds or screen sharing within the browser.
-- Provides an intuitive user interface for visualizing detection bounding boxes and labels.
-- Includes basic support for image/video file uploads for inference (feature expansion).
