@@ -56,7 +56,7 @@ The server will respond with JSON messages containing detection results for each
 Coordinates (`x1`, `y1`, `x2`, `y2`) are normalized (0.0 to 1.0) relative to the image dimensions.
 
 ## Recent Changes
-### YYYY-MM-DD – Initial release of real-time YOLO detection server
+### 2026-02-27 – Initial release of real-time YOLO detection server
 - Introduces a FastAPI-based server for real-time object detection.
 - Provides a WebSocket API (`/ws`) for streaming image frames and receiving detection results.
 - Includes a `/health` endpoint for server status checks.
