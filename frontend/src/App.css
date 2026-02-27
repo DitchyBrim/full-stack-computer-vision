@@ -1,0 +1,152 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 2rem;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+h1 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+/* ── mode dropdown ─────────────────────────────────────── */
+#mode-select {
+  background: #1e1e1e;
+  color: #e2e2e2;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: auto;
+  transition: border-color 0.15s;
+}
+
+#mode-select:hover { border-color: #555; }
+#mode-select:focus { outline: none; border-color: #60a5fa; }
+
+/* ── video + canvas stack ──────────────────────────────── */
+.video-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #1a1a1a;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+  min-width: 760px;
+  resize: both;
+}
+
+.video-container video,
+.video-container canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-container canvas {
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── control groups ────────────────────────────────────── */
+.controls-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── buttons ───────────────────────────────────────────── */
+.controls-group button {
+  border: none;
+  padding: 0.6rem 1.6rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+  background: #111;
+  transition: background 0.15s, transform 0.1s, opacity 0.2s;
+}
+
+.controls-group button:active { transform: scale(0.96); }
+.controls-group button:disabled { opacity: 0.35; cursor: not-allowed; }
+.controls-group button:hover:not(:disabled) { background: #ddd; color: #111; }
+
+.controls-group button.active {
+  color: #60a5fa;
+  background: #fff;
+}
+.controls-group button.active:hover {
+  background: #3b82f6;
+  color: #fff;
+}
+
+/* ── file input ────────────────────────────────────────── */
+#file-input {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+/* ── status + detections panel ─────────────────────────── */
+.detections-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status {
+  font-size: 0.85rem;
+  color: #666;
+  transition: color 0.2s;
+}
+.status.active    { color: #4ade80; }
+.status.connected { color: #60a5fa; }
+.status.error     { color: #f87171; }
+
+.detections-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 1.5rem;
+}
+
+.detections-list li {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+  color: #ccc;
+}
