@@ -1,4 +1,4 @@
-import { type DetectionMessage } from './types'
+import { type DetectionMessage , type Settings} from './types'
 
 const SEND_FPS = 10
 const WS_URL = 'ws://localhost:8000/ws'
@@ -74,6 +74,16 @@ export async function connect(): Promise<void> {
       }
     }
   })
+}
+
+// send settings to backend as separate json message
+export function sendSettings(settings: Settings): void {
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    console.warn('[ws] sendSettings called but WS is not open — will apply on next connect')
+    return
+  }
+  ws.send(JSON.stringify({ type: 'settings', ...settings }))
+  console.log('[ws] settings sent', settings)
 }
 
 export function disconnect(): void {

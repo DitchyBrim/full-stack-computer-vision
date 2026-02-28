@@ -2,12 +2,14 @@ import { useCallback, useState } from 'react'
 import { useCamera } from './hooks/useCamera'
 import { useScreenShare } from './hooks/useScreenShare'
 import { useWebSocket } from './hooks/useWebSocket'
+import { useSettings } from './hooks/useSettings'
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 import VideoCanvas from './components/VideoCanvas'
 import DetectionPanel from './components/DetectionPanel'
-import {type Detection, type DetectionMessage} from './types'
+import {type Detection, type DetectionMessage} from './lib/types'
 import './App.css'
+import SettingsSidebar from './components/SettingsSidebar'
 
 type Mode = 'live' | 'screen' | 'upload'
 type StatusState = 'active' | 'error' | 'connected' | ''
@@ -18,6 +20,7 @@ function App() {
   const [detections, setDetections] = useState<Detection[]>([])
   const [status, setStatus] = useState('Camera is off')
   const [statusState, setStatusState] = useState<StatusState>('')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   // const [count, setCount] = useState(0)
   const camera = useCamera()
   const screen = useScreenShare()
@@ -26,6 +29,7 @@ function App() {
     setDetections(msg.detections)
   }, [])
   const ws = useWebSocket(handleDetections, activeGrab)
+  const { settings, updateSettings } = useSettings(ws.sendSettings)
 
   // ── shared status helper ──────────────────────────────────
   const updateStatus = (text: string, state: StatusState) => {
@@ -132,6 +136,13 @@ function App() {
     <>
     <div id='app'>
       <h1>YOLO detection</h1>
+      <button className='settings-toggle' onClick={() => setSidebarOpen(true)} title="Open settings">⚙Settings</button>
+      <SettingsSidebar
+      open={sidebarOpen}
+      onClose={() => setSidebarOpen(false)}
+      settings={settings}
+      onChange={updateSettings}
+      />
       {/* Mode selection */}
       <select 
         id="mode-select"

@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
-import { connect, disconnect, setOnDetections, setGrabFn, type GrabFn } from '../lib/websocket'
-import { type DetectionMessage } from '../lib/types'
+import { connect, disconnect, setOnDetections, setGrabFn, type GrabFn, sendSettings as wsSendSettings } from '../lib/websocket'
+import { type DetectionMessage , type Settings} from '../lib/types'
 
 export function useWebSocket(
   onDetections: (msg: DetectionMessage) => void,
@@ -37,5 +37,9 @@ export function useWebSocket(
     setConnected(false)
   }, [])
 
-  return { connected, error, connect: connectWs, disconnect: disconnectWs }
+  const sendSettings = useCallback((settings:Settings) => {
+    wsSendSettings(settings)
+  }, [])
+
+  return { connected, error, connect: connectWs, disconnect: disconnectWs, sendSettings }
 }
