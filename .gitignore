@@ -32,3 +32,8 @@ frontend/dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+#
+venv/
+myvenv/
+env/
