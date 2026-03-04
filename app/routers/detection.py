@@ -1,9 +1,12 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+import io
+
+from fastapi import APIRouter, File, WebSocket, WebSocketDisconnect, Form, UploadFile
+from PIL import Image
 
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.models.yolo_manager import model_manager
-from app.schemas.detection import SettingsMessage
+from app.schemas.detection import SettingsMessage, InferRequest
 from app.services.detection_service import base64_to_image, run_detection
 
 import json, logging
@@ -60,3 +63,20 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_json({"detections": detections})
     except WebSocketDisconnect:
         logger.info("Client disconnected after %d frames", frame_count)
+
+@router.post('/infer/image')
+async def infer_image(
+    file: UploadFile = File(...),
+    confidence: float = Form(0.5),
+    iou: float = Form(0.45),
+    max_det: int = Form(100),
+    model: str = Form("yolov8n"),
+):
+    """HTTP endpoint for single image inference."""
+    contents = await file.read()
+    image = Image.open(io.BytesIO(contents)).convert("RGB")
+
+    mdl = model_manager.get(model)
+    detections = run_detection(image, mdl, confidence, iou, max_det)
+
+    return {"detections": [d for d in detections]}

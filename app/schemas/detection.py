@@ -18,3 +18,6 @@ class SettingsMessage(BaseModel):
     iou: float = Field(0.45, ge=0.0, le=1.0)
     maxDetections: int = Field(100, ge=1, le=300)
     model: str = "yolov8n"
+class InferRequest(BaseModel):
+    image_b64: str
+    settings: SettingsMessage
