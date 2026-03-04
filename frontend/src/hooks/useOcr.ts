@@ -59,11 +59,11 @@ export function useOcr() {
         let isImageResponse = false
 
         if (outputType === 'text') {
-          endpoint = `${API_URL}/api/ocr/extract`
+          endpoint = `${API_URL}/ocr/extract`
         } else if (outputType === 'boxes') {
-          endpoint = `${API_URL}/api/ocr/extract-with-boxes`
+          endpoint = `${API_URL}/ocr/extract-with-boxes`
         } else {
-          endpoint = `${API_URL}/api/ocr/extract-annotated`
+          endpoint = `${API_URL}/ocr/extract-annotated`
           isImageResponse = true
         }
 
