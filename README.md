@@ -3,7 +3,7 @@
 ## Features
 ✦ Provides a full-stack solution for real-time object detection, including a web-based UI with dynamic settings.
 ✦ Integrates configurable YOLOv8 models (nano, small, medium, large, extra-large) for efficient AI-powered inference on the backend.
-✦ Offers an HTTP `/health` endpoint for quick server status checks and a `/models` endpoint to list available YOLO models.
+✦ Offers an HTTP `/health` endpoint for quick server status checks, including a list of currently loaded models, and a `/models` endpoint to list available YOLO models.
 ✦ Processes base64-encoded image frames received over WebSocket from various sources.
 ✦ Allows dynamic adjustment of detection parameters (model, confidence threshold, IOU threshold, max detections) via WebSocket.
 ✦ Returns structured JSON detection results including normalized bounding box coordinates, labels, and confidence.
@@ -15,10 +15,10 @@
 First, ensure you have Python 3.8+ installed. Then, install the required dependencies:
 
 ```bash
-pip install fastapi uvicorn "ultralytics[yolo]" Pillow pydantic
+pip install fastapi uvicorn "ultralytics[yolo]" Pillow pydantic pydantic-settings
 ```
 
-The backend server will automatically download the specified YOLOv8 model (e.g., `yolov8n.pt`) if not found in the project root directory, and will cache additional models loaded dynamically.
+The backend server automatically downloads and caches required YOLOv8 models (e.g., `yolov8n.pt`), with the default and available models configured in `app/core/config.py`.
 
 ### Installation (Frontend)
 Navigate to the `frontend/` directory and install the Node.js dependencies:
@@ -35,6 +35,7 @@ Start the FastAPI server:
 ```bash
 python app/main.py
 ```
+Server configuration, including default detection parameters and available models, can be customized using environment variables or a `.env` file (e.g., `DEFAULT_MODEL=yolov8m`).
 The server will start on `http://localhost:8000`.
 
 ### Running the Client (Frontend)
