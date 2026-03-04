@@ -40,6 +40,7 @@ Real-time object detection (YOLOv8) + OCR (Tesseract) full-stack app with FastAP
 <p align="center">
 <img alt="OCR landing page" src="screenshots/ocr-landingpage.png" style="display: block;" width=300></img>
 </p>
+✦ Provides a dedicated HTTP endpoint for performing object detection on static image file uploads, complemented by a frontend UI for batch processing and visualization.
 
 ## Usage
 ### Installation (Backend)
@@ -124,6 +125,35 @@ The server will respond with JSON messages containing detection results for each
 }
 ```
 Coordinates (`x1`, `y1`, `x2`, `y2`) are normalized (0.0 to 1.0) relative to the image dimensions.
+
+### HTTP Detection API (Backend)
+The backend provides a REST API endpoint for performing object detection on single image files.
+
+1.  **Infer Image:** `POST /infer/image`
+    *   **Description:** Uploads an image file (`.png`, `.jpeg`, `.jpg`, `.bmp`, `.tiff`, max 10 MB) and returns object detection results.
+    *   **Input:** `multipart/form-data` with:
+        *   `file` (required): An `UploadFile` containing the image.
+        *   `confidence` (optional): `float` from 0.0 to 1.0 (default: 0.5)
+        *   `iou` (optional): `float` from 0.0 to 1.0 (default: 0.45)
+        *   `max_det` (optional): `int` (default: 100)
+        *   `model` (optional): `str` (e.g., `yolov8n`, `yolov8s`, `yolov8m`, `yolov8l`, `yolov8x`)
+    *   **Output:** `application/json`
+        ```json
+        {
+          "detections": [
+            {
+              "label": "person",
+              "confidence": 0.897,
+              "x1": 0.1234,
+              "y1": 0.5678,
+              "x2": 0.3456,
+              "y2": 0.7890
+            },
+            // ... more detection objects
+          ]
+        }
+        ```
+        Coordinates (`x1`, `y1`, `x2`, `y2`) are normalized (0.0 to 1.0) relative to the image dimensions.
 
 ### OCR API (Backend)
 The backend provides REST API endpoints for Optical Character Recognition. All endpoints accept image files (`.png`, `.jpeg`, `.jpg`, `.bmp`, `.tiff`) up to 10 MB and support a `language` query parameter (e.g., `eng`, `spa`).
