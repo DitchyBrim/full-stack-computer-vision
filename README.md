@@ -9,15 +9,16 @@
 ✦ Returns structured JSON detection results including normalized bounding box coordinates, labels, and confidence.
 ✦ Supports multiple video input sources from the frontend: live camera feed, desktop screen sharing, and local file uploads (images/videos).
 ✦ Visualizes object detection results (bounding boxes, labels, confidence) directly on the video stream in real-time.
+✦ Includes OCR (Optical Character Recognition) capabilities for extracting text from images, providing plain text, text with bounding box information, or an annotated image.
 
 ## Usage
 ### Installation (Backend)
 First, ensure you have Python 3.8+ installed. Then, install the required dependencies:
 
 ```bash
-pip install fastapi uvicorn "ultralytics[yolo]" Pillow pydantic pydantic-settings
+pip install fastapi uvicorn "ultralytics[yolo]" Pillow pydantic pydantic-settings pytesseract opencv-python
 ```
-
+For OCR functionality, you must also install the Tesseract OCR engine on your system. Refer to the official [Tesseract documentation](https://tesseract-ocr.github.io/tessdoc/Installation.html) for installation instructions specific to your operating system.
 The backend server automatically downloads and caches required YOLOv8 models (e.g., `yolov8n.pt`), with the default and available models configured in `app/core/config.py`.
 
 ### Installation (Frontend)
@@ -35,7 +36,7 @@ Start the FastAPI server:
 ```bash
 python app/main.py
 ```
-Server configuration, including default detection parameters and available models, can be customized using environment variables or a `.env` file (e.g., `DEFAULT_MODEL=yolov8m`).
+Server configuration, including default detection parameters and available models, can be customized using environment variables or a `.env` file (e.g., `DEFAULT_MODEL=yolov8m`). OCR settings like `TESSERACT_PATH` (path to Tesseract executable) and `DEFAULT_OCR_LANGUAGE` can also be configured.
 The server will start on `http://localhost:8000`.
 
 ### Running the Client (Frontend)
@@ -46,7 +47,7 @@ cd frontend
 npm run dev
 # or yarn dev
 ```
-The client application will typically open in your browser at `http://localhost:5173`. Ensure both backend and frontend are running for full functionality.
+The client application will typically open in your browser at `http://localhost:5173`. Ensure both backend and frontend are running for full functionality. The client application offers two main sections: real-time YOLO detection and an OCR image processor, accessible via the navigation bar.
 
 ### WebSocket API (Backend)
 The frontend client automatically connects to the WebSocket endpoint at `ws://localhost:8000/ws`.
@@ -93,3 +94,47 @@ The server will respond with JSON messages containing detection results for each
 }
 ```
 Coordinates (`x1`, `y1`, `x2`, `y2`) are normalized (0.0 to 1.0) relative to the image dimensions.
+
+### OCR API (Backend)
+The backend provides REST API endpoints for Optical Character Recognition. All endpoints accept image files (`.png`, `.jpeg`, `.jpg`, `.bmp`, `.tiff`) up to 10 MB and support a `language` query parameter (e.g., `eng`, `spa`).
+
+1.  **Extract Plain Text:** `POST /ocr/extract`
+    *   **Description:** Extracts all discernible text from an uploaded image.
+    *   **Input:** `multipart/form-data` with an `UploadFile` (image) and an optional `language` query parameter.
+    *   **Output:** `application/json`
+        ```json
+        {
+          "job_id": "...",
+          "text": "Extracted text content...",
+          "confidence": 85.3, // average confidence
+          "language": "eng",
+          "processed_at": "2026-03-04T18:12:00Z"
+        }
+        ```
+
+2.  **Extract Text with Bounding Boxes:** `POST /ocr/extract-with-boxes`
+    *   **Description:** Extracts text and provides detailed bounding box coordinates for each detected word.
+    *   **Input:** `multipart/form-data` with an `UploadFile` (image) and an optional `language` query parameter.
+    *   **Output:** `application/json`
+        ```json
+        {
+          "job_id": "...",
+          "text": "Extracted text content...",
+          "words": [
+            {
+              "text": "Word",
+              "confidence": 98.5,
+              "bounding_box": { "left": 10, "top": 20, "width": 50, "height": 15 }
+            },
+            // ... more words
+          ],
+          "total_words": 123,
+          "language": "eng",
+          "processed_at": "2026-03-04T18:12:00Z"
+        }
+        ```
+
+3.  **Extract Annotated Image:** `POST /ocr/extract-annotated`
+    *   **Description:** Returns the uploaded image with bounding boxes drawn around the detected text.
+    *   **Input:** `multipart/form-data` with an `UploadFile` (image) and an optional `language` query parameter.
+    *   **Output:** `image/png` (binary image data) with `X-Total-Words` header.
