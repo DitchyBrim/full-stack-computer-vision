@@ -10,6 +10,7 @@ import DetectionPanel from '../components/DetectionPanel'
 import {type Detection, type DetectionMessage} from '../lib/types'
 import SettingsSidebar from '../components/SettingsSidebar'
 import OcrFileList  from '../components/OcrFileList'
+import { ImageWithDetections } from '../components/DetectionUploadResult'
 
 type Mode = 'live' | 'screen' | 'upload'
 type StatusState = 'active' | 'error' | 'connected' | ''
@@ -234,7 +235,15 @@ function App() {
               Reset
             </button>
           )}
+          {/* Results */}
         </div>
+          {imageInfer.results.length > 0 && (
+          <div className="ocr-result-card">
+            {imageInfer.results.map((r, i) => (
+              <ImageWithDetections key={i} result={r} />
+            ))}
+          </div>
+        )}
         </>
         // <>
         //   <div className="controls-group">

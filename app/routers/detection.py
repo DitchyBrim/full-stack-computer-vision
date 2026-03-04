@@ -79,4 +79,4 @@ async def infer_image(
     mdl = model_manager.get(model)
     detections = run_detection(image, mdl, confidence, iou, max_det)
 
-    return {"detections": [d for d in detections]}
+    return {"detections": detections}
