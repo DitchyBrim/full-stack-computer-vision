@@ -1,3 +1,4 @@
+import folderIcon from '../assets/folder.png'
 interface Props {
   onFiles: (files: FileList | null) => void
 }
@@ -6,7 +7,7 @@ export default function OcrDropzone({ onFiles }: Props) {
   return (
     <label className="ocr-dropzone">
       <div className="ocr-dropzone-inner">
-        <span className="ocr-dropzone-icon">📁</span>
+        <span className="ocr-dropzone-icon" style={{ backgroundImage: `url(${folderIcon})` }}><img src={folderIcon} alt="upload" className="ocr-dropzone-icon" /></span>
         <p className="ocr-dropzone-title">
           <strong>Click to upload</strong> or drag and drop
         </p>

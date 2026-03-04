@@ -425,7 +425,8 @@ nav {
 }
 
 .ocr-dropzone-icon {
-  font-size: 2.5rem;
+  width: 48px;
+  height: 48px;
   opacity: 0.5;
 }
 
