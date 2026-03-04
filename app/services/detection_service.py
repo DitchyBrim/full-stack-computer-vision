@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import io
 import base64
 
-from ..schemas.detection import Detection
+# from ..schemas.detection import Detection
 
 def base64_to_image(b64: str) -> Image.Image:
     raw = base64.b64decode(b64)
@@ -24,3 +24,15 @@ def run_detection(image: Image.Image, model: YOLO, conf: float, iou: float, max_
         }
         for box in results.boxes
     ]
+
+if __name__ == "__main__":
+    import os
+    # quick test
+    model = YOLO("yolov8m.pt")
+    print(os.getcwd()
+)
+    with open("test_image.jpg", "rb") as f:
+        b64 = base64.b64encode(f.read()).decode()
+    img = base64_to_image(b64)
+    detections = run_detection(img, model, conf=0.25, iou=0.45, max_det=100)
+    print(detections)

@@ -37,3 +37,7 @@ frontend/dist-ssr
 venv/
 myvenv/
 env/
+*.pt
+*.jpg
+*.png
+*.jpeg
