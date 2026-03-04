@@ -36,14 +36,16 @@ export function ImageWithDetections({ result }: Props) {
   }, [result.detections])
 
   return (
-    <div className="ocr-result" style={{ position: "relative", display: "inline-block" }}>
+    <div className="upload-results" style={{ position: "relative", display: "inline-block" }}>
       <img
+      className="upload-result"
         ref={imgRef}
         src={result.previewUrl}
         alt={result.fileName}
         style={{ display: "block", maxWidth: "100%" }}
       />
       <canvas
+      className="upload-canvas"
         ref={canvasRef}
         style={{
           position: "absolute",

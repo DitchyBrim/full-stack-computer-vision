@@ -235,14 +235,14 @@ function App() {
               Reset
             </button>
           )}
-          {/* Results */}
         </div>
-          {imageInfer.results.length > 0 && (
-          <div className="ocr-result-card">
-            {imageInfer.results.map((r, i) => (
-              <ImageWithDetections key={i} result={r} />
-            ))}
-          </div>
+        {/* Results */}
+        {imageInfer.results.length > 0 && (
+        <div>
+          {imageInfer.results.map((r, i) => (
+            <ImageWithDetections key={i} result={r} />
+          ))}
+        </div>
         )}
         </>
         // <>

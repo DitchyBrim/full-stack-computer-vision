@@ -1,15 +1,45 @@
 # full-stack-computer-vision
+Real-time object detection (YOLOv8) + OCR (Tesseract) full-stack app with FastAPI backend and React frontend.
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="screenshots/od-result.png" alt="YOLO detection example" width="400"/>
+    </td>
+    <td align="center">
+      <img src="screenshots/ocr-result-image.png" alt="OCR bounding boxes visualization" width="400"/>
+    </td>
+  </tr>
+</table>
+
+<p align="center">
+  Object detection (left) — Text extraction with boxes (right)
+</p>
 
 ## Features
 ✦ Provides a full-stack solution for real-time object detection, including a web-based UI with dynamic settings.
+<img alt="Web UI - Live Object Detection" src="screenshots/od-landingpage.png" ></img>
+*Browser interface: select model, adjust confidence/IOU, see real-time bounding boxes*
+
 ✦ Integrates configurable YOLOv8 models (nano, small, medium, large, extra-large) for efficient AI-powered inference on the backend.
+<p align="center">
+<img alt="YOLOv8 multiple model support" src="screenshots/model-selection.png" style="display: block;" width=300></img>
+</p>
+*Switch models on-the-fly without restarting*
+
 ✦ Offers an HTTP `/health` endpoint for quick server status checks, including a list of currently loaded models, and a `/models` endpoint to list available YOLO models.
 ✦ Processes base64-encoded image frames received over WebSocket from various sources.
 ✦ Allows dynamic adjustment of detection parameters (model, confidence threshold, IOU threshold, max detections) via WebSocket.
 ✦ Returns structured JSON detection results including normalized bounding box coordinates, labels, and confidence.
+
 ✦ Supports multiple video input sources from the frontend: live camera feed, desktop screen sharing, and local file uploads (images/videos).
+
 ✦ Visualizes object detection results (bounding boxes, labels, confidence) directly on the video stream in real-time.
+
 ✦ Includes OCR (Optical Character Recognition) capabilities for extracting text from images, providing plain text, text with bounding box information, or an annotated image.
+<p align="center">
+<img alt="OCR landing page" src="screenshots/ocr-landingpage.png" style="display: block;" width=300></img>
+</p>
 
 ## Usage
 ### Installation (Backend)
