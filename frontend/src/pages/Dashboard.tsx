@@ -30,11 +30,7 @@ export default function Dashboard() {
             setLoading(false);
         }
     }
-    const handleDeleteKey = async (keyId: string) => {
-        await authApi.deleteApiKey(keyId);
-        setApiKeys( (keys) => keys.filter((k) => k.id !== keyId))
-    }
-
+    
     const copyToClipboard = async () => {
         try {
             await navigator.clipboard.writeText(createdKey.key)
@@ -49,60 +45,84 @@ export default function Dashboard() {
         //  reset button text after 2 seconds
         setTimeout( () => setCopied(false), 2000)
     }
+    
+    // const handleDeleteKey = async (keyId: string) => {
+    //     await authApi.deleteApiKey(keyId);
+    //     setApiKeys( (keys) => keys.filter((k) => k.id !== keyId))
+    // }
+    const handleDeleteKey = async (keyId: string, keyName: string) => {
+        const confirmed = window.confirm(
+            `Revoke API key "${keyName}"?\n\nThis cannot be undone. Any scripts using this key will stop working immediately.`
+        )
+        if (!confirmed) return
+
+        await authApi.deleteApiKey(keyId)
+        setApiKeys((keys) => keys.filter((k) => k.id !== keyId))
+        }
 
     return  (
-        <div className="page">
-            <header className="page-header">
-                <h1>Dashboard</h1>
-                <div className="header-right">
-                    <span className="role-badge role-badge--{user?.role?">{user?.role}</span>
-                    <span>{user?.username}</span>
-                    {user?.role === "admin" && <a href="/admin">Admin Panel</a>}
-                    <button onClick={logout}>Logout</button>
-                </div>
-            </header>
+    <div className="page">
+      {/* <header className="page-header">
+        <h1>Dashboard</h1>
+        <div className="header-right">
+          <span className="role-badge role-badge--{user?.role}">{user?.role}</span>
+          <span>{user?.username}</span>
+          {user?.role === "admin" && <a href="/admin">Admin Panel →</a>}
+          <button onClick={logout}>Logout</button>
+        </div>
+      </header> */}
 
-            {/* Profile */}
-            <section className="card">
-                <h2>Your Profile</h2>
-                <p><strong>Email:</strong> {user?.email}</p>
-                <p><strong>Username:</strong> {user?.username}</p>
-                <p><strong>Role:</strong> {user?.role}</p>
-                <p><strong>Member since:</strong> {new Date(user?.created_at ?? "").toLocaleDateString()}</p>
+      {/* Profile */}
+      <section className="card">
+        <h2>Your Profile</h2>
+        <p><strong>Email:</strong> {user?.email}</p>
+        <p><strong>Username:</strong> {user?.username}</p>
+        <p><strong>Role:</strong> {user?.role}</p>
+        <p><strong>Member since:</strong> {new Date(user?.created_at ?? "").toLocaleDateString()}</p>
+      </section>
 
-            {/* API keys */}
-            <section className="card">
-                <h2>API keys</h2>
-                <p className="hint">use these keys to call iamge processing endpoints with <code>X-API-Key</code>header</p>
+      {/* API Keys */}
+      <section className="card">
+        <h2>API Keys</h2>
+        <p className="hint">Use these keys to call image processing endpoints with the <code>X-API-Key</code> header.</p>
 
-                {/* Create api key */}
-                <div className="key-create-row"></div>
-                <input 
-                    type="text"
-                    placeholder="Key name"
-                    value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}/>
-            </section>
-            <select value={newKeyScope} onChange={(e) => setNewKeyScope(e.target.value as "read" | "write")}>
-                <option value="read">read</option>
-                <option value="write">write</option>
-            </select>
-            <button onClick={handleCreateKey} disabled={loading}>
-                {loading ? "Creating..." : "+ Generate key"}
-            </button>
+        {/* Create new key */}
+        <div className="key-create-row">
+          <input
+            type="text"
+            placeholder="Key name (e.g. my-script)"
+            value={newKeyName}
+            onChange={(e) => setNewKeyName(e.target.value)}
+          />
+          <select value={newKeyScope} onChange={(e) => setNewKeyScope(e.target.value as "read" | "write")}>
+            <option value="read">read</option>
+            <option value="write">write</option>
+          </select>
+          <button onClick={handleCreateKey} disabled={loading}>
+            {loading ? "Creating..." : "+ Generate Key"}
+          </button>
+        </div>
 
-            {createdKey && (
-                <div className="key-reveal"> 
-                    <strong>Save this key now. it won't be shown again</strong>
-                    <code>{createdKey.key}</code>
-                    <button onClick={() => setCreatedKey(null)}>Dismiss</button>
-                </div>
-            )}
-            {/* Existingkeys */}
-            {apiKeys.length === 0 ? (
-                <p>No API keys yet.</p>
-            ) : (
-                <table className="key-table">
+        {/* One-time key reveal */}
+        {createdKey && (
+          <div className="key-reveal">
+            <strong>Save this key now — it won't be shown again</strong>
+            <div className="key-reveal-row">
+              <code>{createdKey.key}
+              <button className="btn-copy" onClick={handleCopy}>{copied? "Copied" :"Copy Key"}</button>
+              </code>
+              <div className="key-reveal-actions">
+              </div>
+            </div>
+              <button onClick={() => setCreatedKey(null)}>Dismiss</button>
+          </div>
+        )}
+
+        {/* Existing keys */}
+        {apiKeys.length === 0 ? (
+          <p>No API keys yet.</p>
+        ) : (
+          <table className="key-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -114,13 +134,13 @@ export default function Dashboard() {
             </thead>
             <tbody>
               {apiKeys.map((key) => (
-                  <tr key={key.id}>
+                <tr key={key.id}>
                   <td>{key.name ?? "—"}</td>
                   <td><span className="scope-badge">{key.scope}</span></td>
                   <td>{key.last_used ? new Date(key.last_used).toLocaleDateString() : "Never"}</td>
                   <td>{new Date(key.created_at).toLocaleDateString()}</td>
                   <td>
-                    <button className="btn-danger" onClick={() => handleDeleteKey(key.id)}>
+                    <button className="btn-danger" onClick={() => handleDeleteKey(key.id, key.name ?? "Unnamed")}>
                       Revoke
                     </button>
                   </td>
@@ -129,7 +149,7 @@ export default function Dashboard() {
             </tbody>
           </table>
         )}
-        </section>
-        </div>
-    )
+      </section>
+    </div>
+  );
 }

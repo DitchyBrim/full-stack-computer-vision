@@ -5,21 +5,24 @@ interface Props {
     requiredRole?: "user"| "admin"
 }
 
-export function ProtectedRoute ({requiredRole} : Props) {
-    const { user, token, isLoading} = useAuth();
+export function ProtectedRoute({ requiredRole }: Props) {
+  const { user, token, isLoading } = useAuth();
 
-    //  still checking local storage
-    if (isLoading) {
-        return <div style={{padding: "2rem"}}>Loading...</div>
-    }
-    // not logged in 
-    if (!token || !user) {
-        return <Navigate to="/login" replace/>
-    }
+  // Still checking localStorage / verifying token
+  if (isLoading) {
+    return <div style={{ padding: "2rem" }}>Loading...</div>;
+  }
 
-    //  logged in but wrong role
-    if (requiredRole && user.role !== requiredRole){
-        return <Navigate to="/403" replace/>
-    }
-    return <Outlet/>
+  // Not logged in
+  if (!token || !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Logged in but wrong role
+  if (requiredRole && user.role !== requiredRole) {
+    return <Navigate to="/403" replace />;
+  }
+
+  // All good — render the child route
+  return <Outlet />;
 }

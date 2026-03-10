@@ -25,7 +25,7 @@ export function AuthProvider({ children}: {children: ReactNode}) {
         authApi
             .getMe()
             .then( (res) => {
-                setState({ user: res.date as User, token, isLoading: false, error: null})
+                setState({ user: res.data as User, token, isLoading: false, error: null})
             })
             .catch ( () => {
                 localStorage.removeItem("access_token")
