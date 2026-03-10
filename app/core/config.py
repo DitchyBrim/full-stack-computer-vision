@@ -2,7 +2,27 @@ from typing import Optional
 
 from pydantic_settings import BaseSettings
 import shutil, platform, os
+from dotenv import load_dotenv
+
+# env variables
+load_dotenv()
+
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_DB = os.getenv("POSTGRES_DB")
+SECREET_KEY = os.getenv("SECRET_KEY")
 class Settings(BaseSettings):
+
+    # Database settings
+    POSTGRES_USER: str = POSTGRES_USER
+    POSTGRES_PASSWORD: str = POSTGRES_PASSWORD
+    POSTGRES_DB: str = POSTGRES_DB
+    SECRET_KEY: str = SECREET_KEY
+    DATABASE_URL: str = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@localhost:5431/{POSTGRES_DB}"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+    # OD Settings - Platform independent
     default_model: str = "yolov8n"
     available_models: dict[str, str] = {
         "yolov8n": "YOLOv8n (fastest)",
