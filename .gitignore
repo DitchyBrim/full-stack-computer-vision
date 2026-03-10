@@ -41,3 +41,5 @@ env/
 *.jpg
 # *.png
 *.jpeg
+
+.env
