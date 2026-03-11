@@ -1,5 +1,5 @@
 # full-stack-computer-vision
-Real-time object detection (YOLOv8) + OCR (Tesseract) full-stack app with FastAPI backend and React frontend.
+Real-time object detection (YOLOv8) + OCR (Tesseract) full-stack app with FastAPI backend and React frontend. Now with JWT authentication and API key management.
 
 <table align="center">
   <tr>
@@ -42,15 +42,37 @@ Real-time object detection (YOLOv8) + OCR (Tesseract) full-stack app with FastAP
 </p>
 ✦ Provides a dedicated HTTP endpoint for performing object detection on static image file uploads, complemented by a frontend UI for batch processing and visualization.
 
+✦ **Secure user authentication:** Implements user registration and login using JWT (JSON Web Tokens) for secure access to protected resources.
+✦ **API Key management:** Users can generate, list, and revoke API keys for programmatic access to specific endpoints via the `X-API-Key` header.
+✦ **Role-based access control:** Supports `user` and `admin` roles, enabling fine-grained control over features and data, including an admin-exclusive UI for user management.
+✦ **User dashboard:** A dedicated frontend dashboard for users to manage their profile and API keys.
+
 ## Usage
 ### Installation (Backend)
-First, ensure you have Python 3.8+ installed. Then, install the required dependencies:
+First, ensure you have Python 3.8+ installed. You will also need a PostgreSQL database instance running.
+Then, install the required dependencies:
 
 ```bash
-pip install fastapi uvicorn "ultralytics[yolo]" Pillow pydantic pydantic-settings pytesseract opencv-python
+pip install ultralytics fastapi==0.111.0 uvicorn[standard]==0.29.0 sqlalchemy==2.0.30 psycopg2-binary==2.9.9 passlib[bcrypt]==1.7.4 python-jose[cryptography]==3.3.0 python-multipart==0.0.9 pydantic-settings==2.2.1 alembic==1.13.1
 ```
 For OCR functionality, you must also install the Tesseract OCR engine on your system. Refer to the official [Tesseract documentation](https://tesseract-ocr.github.io/tessdoc/Installation.html) for installation instructions specific to your operating system.
 The backend server automatically downloads and caches required YOLOv8 models (e.g., `yolov8n.pt`), with the default and available models configured in `app/core/config.py`.
+
+**Database Setup (Alembic)**
+This project uses Alembic for database migrations.
+1.  Initialize Alembic:
+    ```bash
+    alembic init alembic
+    ```
+    (This step is typically done once per project; subsequent runs only require `alembic revision` and `alembic upgrade`).
+2.  Generate initial migration (or subsequent migrations after model changes):
+    ```bash
+    alembic revision --autogenerate -m "create users and api_keys tables"
+    ```
+3.  Apply migrations to your database:
+    ```bash
+    alembic upgrade head
+    ```
 
 ### Installation (Frontend)
 Navigate to the `frontend/` directory and install the Node.js dependencies:
@@ -62,6 +84,14 @@ npm install
 ```
 
 ### Running the Server (Backend)
+Configure your database connection and `SECRET_KEY` by creating a `.env` file in the project root or setting environment variables:
+```
+POSTGRES_USER=your_user
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=your_database
+SECRET_KEY=a_very_secret_key_that_is_at_least_32_chars
+# Optional: TESSERACT_PATH=/usr/local/bin/tesseract
+```
 Start the FastAPI server:
 
 ```bash
@@ -78,7 +108,7 @@ cd frontend
 npm run dev
 # or yarn dev
 ```
-The client application will typically open in your browser at `http://localhost:5173`. Ensure both backend and frontend are running for full functionality. The client application offers two main sections: real-time YOLO detection and an OCR image processor, accessible via the navigation bar.
+The client application will typically open in your browser at `http://localhost:5173`. You will first need to register and log in to access the main features. The client application offers several sections: real-time YOLO detection, OCR image processor, a user dashboard for managing API keys, and an admin panel (for admin users), accessible via the navigation bar.
 
 ### WebSocket API (Backend)
 The frontend client automatically connects to the WebSocket endpoint at `ws://localhost:8000/ws`.
@@ -126,8 +156,68 @@ The server will respond with JSON messages containing detection results for each
 ```
 Coordinates (`x1`, `y1`, `x2`, `y2`) are normalized (0.0 to 1.0) relative to the image dimensions.
 
+### Authentication & User Management API (Backend)
+This API provides endpoints for user authentication (JWT-based) and API key management.
+
+**JWT Authentication:** Endpoints requiring authentication expect a `Bearer` token in the `Authorization` header.
+**API Key Authentication:** Endpoints designated for programmatic access expect an `X-API-Key` header with a valid API key.
+
+1.  **Register User:** `POST /auth/register`
+    *   **Description:** Creates a new user account.
+    *   **Input:** `application/json` with `email`, `username`, `password` (min 8 chars).
+    *   **Output:** `application/json` (UserResponse).
+
+2.  **Login User:** `POST /auth/login`
+    *   **Description:** Authenticates a user and returns an access token (JWT).
+    *   **Input:** `application/x-www-form-urlencoded` with `username` and `password`.
+    *   **Output:** `application/json` (TokenResponse)
+        ```json
+        {
+          "access_token": "eyJ...",
+          "token_type": "bearer"
+        }
+        ```
+
+3.  **Create API Key:** `POST /auth/api-keys`
+    *   **Description:** Generates a new API key for the authenticated user.
+    *   **Authentication:** Requires JWT.
+    *   **Input:** `application/json` with `name` (string, optional) and `scope` (`"read"` or `"write"`, default: `"read"`).
+    *   **Output:** `application/json` (APIKeyCreatedResponse).
+        *   **Important:** The raw API key is returned *only once* at creation. Store it securely.
+
+4.  **List API Keys:** `GET /auth/api-keys`
+    *   **Description:** Retrieves all API keys belonging to the authenticated user.
+    *   **Authentication:** Requires JWT.
+    *   **Output:** `application/json` (list of APIKeyResponse).
+
+5.  **Revoke API Key:** `DELETE /auth/api-keys/{key_id}`
+    *   **Description:** Deletes a specific API key belonging to the authenticated user.
+    *   **Authentication:** Requires JWT.
+    *   **Output:** `HTTP 204 No Content`.
+
+6.  **Get Current User Profile:** `GET /users/me`
+    *   **Description:** Returns the profile of the authenticated user.
+    *   **Authentication:** Requires JWT.
+    *   **Output:** `application/json` (UserResponse).
+
+7.  **List All Users:** `GET /users/`
+    *   **Description:** Returns a list of all registered users. (Admin only)
+    *   **Authentication:** Requires JWT with `admin` role.
+    *   **Output:** `application/json` (list of UserResponse).
+
+8.  **Change User Role:** `PATCH /users/{user_id}/role`
+    *   **Description:** Updates the role of a specified user. (Admin only)
+    *   **Authentication:** Requires JWT with `admin` role.
+    *   **Input:** Query parameter `role` (`"user"` or `"admin"`).
+    *   **Output:** `application/json` (message and updated username).
+
+9.  **Deactivate User:** `PATCH /users/{user_id}/deactivate`
+    *   **Description:** Deactivates a specified user account. (Admin only)
+    *   **Authentication:** Requires JWT with `admin` role.
+    *   **Output:** `application/json` (message).
+
 ### HTTP Detection API (Backend)
-The backend provides a REST API endpoint for performing object detection on single image files.
+This endpoint performs **unauthenticated** object detection on static image files.
 
 1.  **Infer Image:** `POST /infer/image`
     *   **Description:** Uploads an image file (`.png`, `.jpeg`, `.jpg`, `.bmp`, `.tiff`, max 10 MB) and returns object detection results.
@@ -155,8 +245,22 @@ The backend provides a REST API endpoint for performing object detection on sing
         ```
         Coordinates (`x1`, `y1`, `x2`, `y2`) are normalized (0.0 to 1.0) relative to the image dimensions.
 
+### Authenticated Image Processing API (Backend)
+These endpoints provide image processing functionality that requires authentication, either via an API Key or JWT.
+
+1.  **Process Image:** `POST /images/process`
+    *   **Description:** An example endpoint for image processing logic.
+    *   **Authentication:** Requires `X-API-Key` header with a valid API key.
+    *   **Input:** `multipart/form-data` with `file` (image).
+    *   **Output:** `application/json` (example response, implement your logic).
+
+2.  **Get User's Processing Jobs:** `GET /images/my-jobs`
+    *   **Description:** An example endpoint to retrieve image processing jobs associated with the authenticated user.
+    *   **Authentication:** Requires JWT.
+    *   **Output:** `application/json` (example response, implement your logic).
+
 ### OCR API (Backend)
-The backend provides REST API endpoints for Optical Character Recognition. All endpoints accept image files (`.png`, `.jpeg`, `.jpg`, `.bmp`, `.tiff`) up to 10 MB and support a `language` query parameter (e.g., `eng`, `spa`).
+The backend provides REST API endpoints for **unauthenticated** Optical Character Recognition. All endpoints accept image files (`.png`, `.jpeg`, `.jpg`, `.bmp`, `.tiff`) up to 10 MB and support a `language` query parameter (e.g., `eng`, `spa`).
 
 1.  **Extract Plain Text:** `POST /ocr/extract`
     *   **Description:** Extracts all discernible text from an uploaded image.
@@ -168,7 +272,7 @@ The backend provides REST API endpoints for Optical Character Recognition. All e
           "text": "Extracted text content...",
           "confidence": 85.3, // average confidence
           "language": "eng",
-          "processed_at": "2026-03-04T18:12:00Z"
+          "processed_at": "2026-03-11T15:25:00Z"
         }
         ```
 
@@ -190,7 +294,7 @@ The backend provides REST API endpoints for Optical Character Recognition. All e
           ],
           "total_words": 123,
           "language": "eng",
-          "processed_at": "2026-03-04T18:12:00Z"
+          "processed_at": "2026-03-11T15:25:00Z"
         }
         ```
 
